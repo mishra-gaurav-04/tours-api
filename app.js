@@ -32,12 +32,6 @@ app.use(express.static(path.join(__dirname,'./public')));
 if(process.env.NODE_ENV === 'development'){
     app.use(morgan('combined'));
 }
-
-app.use((req,res,next) => {
-    console.log('Hello from middleware');
-    next();
-});
-
 //routing
 app.use('/api/v1/tours',tourRoutes);
 app.use('/api/v1/user',userRoutes);
