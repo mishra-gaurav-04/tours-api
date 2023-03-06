@@ -13,6 +13,14 @@ dotenv.config();
 
 const PORT = process.env.PORT ;
 
+process.on('uncaughtException',(err) => {
+    console.log('UNHANDLED EXCEPTION :: Shutting Down Applicaion...');
+    console.log(err);
+    server.close(() => {
+        process.exit(1);
+    })
+});
+
 // Middleware
 
 app.use(express.json());
@@ -36,19 +44,21 @@ app.all('*',(req,res,next) => {
 
 app.use(globalErrorHandler);
 
-const startServer = () => {
-    connectDB(process.env.MONGODB_URI)
-    .then((conn) => {
-        // console.log(conn);
-        console.log('Database connected successfully')
-        app.listen(PORT,() => {
-            console.log(`Server started at port :: ${PORT}`);
-        });
-    })
-    .catch((err) => {
-        console.log(err);
-    })
-    
-}
+connectDB(process.env.MONGODB_URI)
+.then((conn) => {
+    console.log('Database connected successfully');
+})
 
-startServer();
+const server = app.listen(PORT,() => {
+    console.log(`Server connected at port :: ${PORT}`);
+});
+
+
+process.on('unhandledRejection',(err) => {
+    console.log('UNHANDLED REJECTIION :: Shutting Down Applicaion...');
+    console.log(err);
+    server.close(() => {
+        process.exit(1);
+    })
+});
+
