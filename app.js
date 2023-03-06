@@ -1,0 +1,54 @@
+const express = require('express');
+const morgan = require('morgan');
+const path = require('path');
+const userRoutes = require('./routes/userRoutes');
+const tourRoutes = require('./routes/tourRoutes');
+const dotenv = require('dotenv');
+const connectDB = require('./config/database');
+const AppError = require('./utils/appError');
+const globalErrorHandler = require('./controllers/errorControllers');
+
+const app = express();
+dotenv.config();
+
+const PORT = process.env.PORT ;
+
+// Middleware
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname,'./public')));
+if(process.env.NODE_ENV === 'development'){
+    app.use(morgan('combined'));
+}
+
+app.use((req,res,next) => {
+    console.log('Hello from middleware');
+    next();
+});
+
+//routing
+app.use('/api/v1/tours',tourRoutes);
+app.use('/api/v1',userRoutes);
+
+app.all('*',(req,res,next) => {
+    next(new AppError('404 Not found',404));
+});
+
+app.use(globalErrorHandler);
+
+const startServer = () => {
+    connectDB(process.env.MONGODB_URI)
+    .then((conn) => {
+        // console.log(conn);
+        console.log('Database connected successfully')
+        app.listen(PORT,() => {
+            console.log(`Server started at port :: ${PORT}`);
+        });
+    })
+    .catch((err) => {
+        console.log(err);
+    })
+    
+}
+
+startServer();
