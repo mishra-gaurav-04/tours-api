@@ -7,11 +7,15 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/database');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorControllers');
+const EventEmitter = require('stream');
 
 const app = express();
 dotenv.config();
 
 const PORT = process.env.PORT ;
+
+const emitter = new EventEmitter();
+emitter.setMaxListeners(0);
 
 process.on('uncaughtException',(err) => {
     console.log('UNHANDLED EXCEPTION :: Shutting Down Applicaion...');
@@ -36,7 +40,7 @@ app.use((req,res,next) => {
 
 //routing
 app.use('/api/v1/tours',tourRoutes);
-app.use('/api/v1',userRoutes);
+app.use('/api/v1/user',userRoutes);
 
 app.all('*',(req,res,next) => {
     next(new AppError('404 Not found',404));
