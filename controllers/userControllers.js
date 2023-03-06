@@ -1,19 +1,20 @@
-const path = require('path');
-const fs = require('fs');
-
-const dataPath = path.join(__dirname,'../dev-data/data/users.json');
-const userData = JSON.parse(fs.readFileSync(dataPath,'utf-8'));
+const User = require('../models/Users');
+const AppError = require('../utils/appError');
+const catchAsync = require('../utils/asyncError');
 
 
-const getAllUsers = (req,res) => {
+
+const getAllUsers = catchAsync(async(req,res,next) => {
+    const users = await User.find();
+
     res.status(200).json({
         status : 'Success',
-        results : userData.length,
         data : {
-            userData
+            users
         }
-    })
-}
+    });
+    
+});
 
 const getUser = (req,res) => {
     console.log('Get User');

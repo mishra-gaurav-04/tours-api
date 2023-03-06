@@ -64,4 +64,4 @@ const globalErrorHandler = (err,req,res,next) => {
     }
 };
 
-module.exports = globalErrorHandler;0
+module.exports = globalErrorHandler;
