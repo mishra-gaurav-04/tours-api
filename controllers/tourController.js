@@ -1,5 +1,6 @@
 const Tour = require('../models/Tours');
 const APIFeatures = require('../utils/apifeatures');
+const AppError = require('../utils/appError');
 const catchAsync = require('../utils/asyncError');
 
 const aliasTopTours = (req,res,next) => {
@@ -52,6 +53,9 @@ const getTour = catchAsync( async(req,res,next) => {
     const tourId = req.params.id;
 
         const tour = await Tour.findById(tourId);
+        if(!tour){
+            return next(new AppError('Tour not found :: invalid ID',404));
+        }
         res.status(200).json({
             status : 'Success',
             data : {
@@ -62,9 +66,9 @@ const getTour = catchAsync( async(req,res,next) => {
 
 const updateTour = catchAsync(async(req,res,next) => {
     const tourId = req.params.id;
-        const {name,price,rating} = req.body;
+    const {name,price,rating} = req.body;
 
-       const updatedTour =  await Tour.findByIdAndUpdate(tourId,{
+    const updatedTour =  await Tour.findByIdAndUpdate(tourId,{
             name : name,
             price : price,
             rating : rating
@@ -73,6 +77,9 @@ const updateTour = catchAsync(async(req,res,next) => {
             new : true,
             runValidators : true
         });
+    if(!updatedTour){
+        return next(new AppError('Tour not found :: Invalid Tour-ID',404));
+    }
 
         res.status(204).json({
             status : 'Updated Successfully',
