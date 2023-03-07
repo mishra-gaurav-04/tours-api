@@ -11,7 +11,7 @@ const tourSchema = new Schema({
         trim : true,
         maxlength : [50,'A tour name must not have more than 10 chracters'],
         minlength : [4 ,'A tour name must have more than 4 charcters'],
-        validate : [validator.isAlpha,'A tour name must contain only alphabets']
+        // validate : [validator.isAlpha,'A tour name must contain only alphabets']
     },
     slug : String,
     duration : {

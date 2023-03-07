@@ -13,7 +13,7 @@ router.get('/',userControllers.getAllUsers);
 // router.post('/',userControllers.addNewUser);
 // router.get('/:id',userControllers.getUser);
 // router.patch('/:id',userControllers.updateUser);
-// router.delete('/:id',userControllers.deleteUser);
+router.delete('/:id',authController.protect,userControllers.deleteUser);
 
 
 module.exports = router;

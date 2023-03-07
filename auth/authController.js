@@ -68,8 +68,20 @@ exports.protect = catchAsync(async(req,res,next) => {
         return next(new AppError('User not found',401));
     }
     // 4 => check if user changed password aftereyJ token was issued
-    if (freshUser.checkPasswordChange(decodedPayload.iat)){
+    if (await freshUser.checkPasswordChange(decodedPayload.iat)){
         return next(new AppError('User has changed password',401));
     }
+    req.user = freshUser;
     next();
 });
+
+exports.restrictTo = (...roles) => {
+    return (req,res,next) => {
+
+        if(!roles.includes(req.user.role)){
+            return next(new AppError('Access Denied',403));
+        }
+
+        next();
+    }
+};
