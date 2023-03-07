@@ -29,6 +29,10 @@ process.on('uncaughtException',(err) => {
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname,'./public')));
+// app.use((req,res,next) => {
+//     console.log(req.headers);
+//     next();
+// })
 if(process.env.NODE_ENV === 'development'){
     app.use(morgan('combined'));
 }
@@ -45,7 +49,7 @@ app.use(globalErrorHandler);
 connectDB(process.env.MONGODB_URI)
 .then((conn) => {
     console.log('Database connected successfully');
-})
+});
 
 const server = app.listen(PORT,() => {
     console.log(`Server connected at port :: ${PORT}`);

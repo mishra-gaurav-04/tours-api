@@ -26,7 +26,12 @@ const handleCastErrorDB = err => {
     const message = `Invalid input data. ${errors.join('. ')}`;
     return new AppError(message, 400);
   };
-
+const handleJWTError = err =>{
+    return new AppError('Invalid token ! login again',401);
+}
+const handleTokenExpirationError = err =>{
+    return new AppError('Token Expired login again',401);
+}
 const sendErrorProd = (err,res) => {
     console.log('Error handler',err);
     if(err.isOperational === true){
@@ -55,10 +60,21 @@ const globalErrorHandler = (err,req,res,next) => {
     else if (process.env.NODE_ENV === 'production') {
         let error = { ...err };
     
-        if (error.name === 'CastError') error = handleCastErrorDB(error);
-        if (error.code === 11000) error = handleDuplicateFieldsDB(error);
-        if (error.name === 'ValidationError')
-          error = handleValidationErrorDB(error);
+        if (error.name === 'CastError'){
+            error = handleCastErrorDB(error);
+        }
+        if (error.code === 11000){
+            error = handleDuplicateFieldsDB(error);
+        }
+        if (error.name === 'ValidationError'){
+            error = handleValidationErrorDB(error);
+        }
+        if(error.name === "JsonWebTokenError"){
+            error = handleJWTError(error);
+        }
+        if(error.name === 'TokenExpiredError'){
+            error = handleTokenExpirationError(error);
+        }
     
         sendErrorProd(error, res);
     }
