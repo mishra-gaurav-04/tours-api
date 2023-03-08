@@ -57,6 +57,15 @@ const updateUser = (req,res) => {
     console.log('UpdateUser');
 }
 
+const deleteMe = catchAsync(async(req,res,next) => {
+     await User.findByIdAndUpdate(req.user.id,{active : false});
+    res.status(204).json({
+        status : "Success",
+        message : 'Deactivation successful',
+        data : null
+    });
+});
+
 const deleteUser = (req,res) => {
     console.log('Delete User');
 }
@@ -67,6 +76,6 @@ module.exports = {
     addNewUser,
     updateUser,
     deleteUser,
-    updateMe
-
+    updateMe,
+    deleteMe
 };

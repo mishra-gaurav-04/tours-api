@@ -17,6 +17,7 @@ router.get('/',userControllers.getAllUsers);
 // router.get('/:id',userControllers.getUser);
 // router.patch('/:id',userControllers.updateUser);
 router.patch('/update',authController.protect,userControllers.updateMe);
+router.delete('/deactivate',authController.protect,userControllers.deleteMe);
 router.delete('/:id',authController.protect,userControllers.deleteUser);
 
 

@@ -48,7 +48,12 @@ const userSchema = new Schema({
     },
     passwordChangedAt : Date,
     passwordResetToken : String,
-    passwordResetTokenExpiresIn : Date
+    passwordResetTokenExpiresIn : Date,
+    active : {
+        type : Boolean,
+        default : true,
+        select : false
+    }
 });
 
 userSchema.pre('save',async function(next){
@@ -66,6 +71,11 @@ userSchema.pre('save',function(next){
         return next();
     }
     this.passwordChangedAt = Date.now()-2000;
+    next();
+});
+
+userSchema.pre(/^find/,function(next){
+    this.find({active : {$ne : false} });
     next();
 });
 
