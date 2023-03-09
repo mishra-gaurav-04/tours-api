@@ -8,6 +8,7 @@ const connectDB = require('./config/database');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorControllers');
 const EventEmitter = require('stream');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 dotenv.config();
@@ -16,6 +17,12 @@ const PORT = process.env.PORT ;
 
 const emitter = new EventEmitter();
 emitter.setMaxListeners(0);
+
+const limiter = rateLimit({
+	windowMs: 60 * 60 * 1000, 
+	max: 100, 
+    // standardHeaders: true,
+});
 
 process.on('uncaughtException',(err) => {
     console.log('UNHANDLED EXCEPTION :: Shutting Down Applicaion...');
@@ -26,7 +33,7 @@ process.on('uncaughtException',(err) => {
 });
 
 // Middleware
-
+app.use('/api',limiter);
 app.use(express.json());
 app.use(express.static(path.join(__dirname,'./public')));
 // app.use((req,res,next) => {
