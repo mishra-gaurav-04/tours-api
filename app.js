@@ -9,6 +9,7 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorControllers');
 const EventEmitter = require('stream');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 const app = express();
 dotenv.config();
@@ -17,6 +18,8 @@ const PORT = process.env.PORT ;
 
 const emitter = new EventEmitter();
 emitter.setMaxListeners(0);
+
+app.use(helmet());
 
 const limiter = rateLimit({
 	windowMs: 60 * 60 * 1000, 
@@ -34,7 +37,7 @@ process.on('uncaughtException',(err) => {
 
 // Middleware
 app.use('/api',limiter);
-app.use(express.json());
+app.use(express.json({limit : '10kb'}));
 app.use(express.static(path.join(__dirname,'./public')));
 // app.use((req,res,next) => {
 //     console.log(req.headers);
