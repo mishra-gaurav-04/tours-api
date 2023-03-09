@@ -10,6 +10,8 @@ const globalErrorHandler = require('./controllers/errorControllers');
 const EventEmitter = require('stream');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 
 const app = express();
 dotenv.config();
@@ -20,9 +22,8 @@ const emitter = new EventEmitter();
 emitter.setMaxListeners(0);
 
 app.use(helmet());
-
 const limiter = rateLimit({
-	windowMs: 60 * 60 * 1000, 
+    windowMs: 60 * 60 * 1000, 
 	max: 100, 
     // standardHeaders: true,
 });
@@ -38,6 +39,8 @@ process.on('uncaughtException',(err) => {
 // Middleware
 app.use('/api',limiter);
 app.use(express.json({limit : '10kb'}));
+app.use(mongoSanitize());
+app.use(xss());
 app.use(express.static(path.join(__dirname,'./public')));
 // app.use((req,res,next) => {
 //     console.log(req.headers);
@@ -60,12 +63,9 @@ connectDB(process.env.MONGODB_URI)
 .then((conn) => {
     console.log('Database connected successfully');
 });
-
 const server = app.listen(PORT,() => {
     console.log(`Server connected at port :: ${PORT}`);
 });
-
-
 process.on('unhandledRejection',(err) => {
     console.log('UNHANDLED REJECTIION :: Shutting Down Applicaion...');
     console.log(err);
