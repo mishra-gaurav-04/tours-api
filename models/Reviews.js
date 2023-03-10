@@ -2,9 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 
-const reviewsSchma = new Schema({
+const reviewsSchema = new Schema({
     review : {
         type : String,
+        required: [true,'Tour must have a review']
     },
     rating :{
         type : Number,
@@ -15,6 +16,23 @@ const reviewsSchma = new Schema({
     tour : {
         type : Schema.Types.ObjectId,
         ref : 'Tour',
-        
-    }
-})
+        required : [true,'Review must belong to the tour']
+    },
+    users : [
+        {
+            type : Schema.Types.ObjectId,
+            ref : 'User',
+            required : [true,'Review must belong to the user']
+        }
+    ],
+    createdAt : {
+        type : Date,
+        default : Date.now(),
+        select : false
+    },
+},{
+    toJSON : {virtuals : true},
+    toObject : {virtuals : true}
+});
+
+module.exports = mongoose.model('Reviews',reviewsSchema);
