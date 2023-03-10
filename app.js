@@ -53,10 +53,6 @@ app.use(hpp({
     ]
 }));
 app.use(express.static(path.join(__dirname,'./public')));
-// app.use((req,res,next) => {
-//     console.log(req.headers);
-//     next();
-// })
 if(process.env.NODE_ENV === 'development'){
     app.use(morgan('combined'));
 }

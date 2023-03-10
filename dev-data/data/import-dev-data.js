@@ -14,7 +14,7 @@ mongoose.connect(process.env.MONGODB_URI)
 })
 
 // reading json file
-const tours = JSON.parse(fs.readFileSync('/home/gaurav/Development/Web-D/Backend/tours/dev-data/data/tours-sample.json','utf-8'));
+const tours = JSON.parse(fs.readFileSync('/home/gaurav/Development/Web-D/Backend/tours/dev-data/data/tours.json','utf-8'));
 
 // loading data to DB
 const importData = async() => {

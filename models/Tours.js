@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const slugify = require('slugify');
 const validator = require('validator');
 const Schema = mongoose.Schema;
+const User = require('./Users');
 
 const tourSchema = new Schema({
     name : {
@@ -22,7 +23,7 @@ const tourSchema = new Schema({
         type : String,
         required : [true,'A tour must have a difficulty'],
         enum : {
-            values : ['easy','medium','difficulty'],
+            values : ['easy','medium','difficult'],
             message : 'Difficulty is either easy,medium or difficult'
         }
     },
@@ -73,6 +74,30 @@ const tourSchema = new Schema({
         default : Date.now(),
         select : false
     },
+    startLocation : {
+        type : {
+            type : String,
+            default : 'Point',
+            enum : ['Point'],
+        },
+        coordinates : [Number],
+        address : String,
+        description : String 
+    },
+    location : [
+        {
+            type : {
+                type : String,
+                default : 'Point',
+                enum : ['Point'],
+            },
+            coordinates : [Number],
+            address : String,
+            description : String,
+            day : Number
+        }
+    ],
+    guides : Array,
     startDates : [Date],
     secretTour : {
         type : Boolean,
@@ -89,6 +114,12 @@ tourSchema.pre('save',function(next){
     this.slug = slugify(this.name,{lower : true});
     next();
 });
+
+tourSchema.pre('save', async function(next) {
+       const guidesPromises = this.guides.map(async id => await User.findById(id));
+       this.guides = await Promise.all(guidesPromises);
+       next();
+    });
 
 // tourSchema.post('save',function(doc,next){
 //     console.log(doc);
