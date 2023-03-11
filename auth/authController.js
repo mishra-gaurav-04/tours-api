@@ -13,36 +13,40 @@ const signToken = (id) => {
 };
 
 const createSendToken = (user,statusCode,res) => {
-    try{const token = signToken(user._id);
-    const cookiesOptions = {
-        expires : new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN *24*60*60*1000),
-        httpOnly : true
-    };
-    if(process.env.NODE_ENV === 'production'){
-        cookiesOptions.secure = true;
-    }
-    user.password = undefined;
-    res.cookie('jwt',token,cookiesOptions);
-    res.status(statusCode).json({
-        status : 'Success',
-        token ,
-        data : {
-            user
+    try
+    {
+        const token = signToken(user._id);
+        const cookiesOptions = {
+            expires : new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN *24*60*60*1000),
+            httpOnly : true
+        };
+        if(process.env.NODE_ENV === 'production'){
+            cookiesOptions.secure = true;
         }
-    });}
+        res.cookie('jwt',token,cookiesOptions);
+        user.password = undefined;
+
+        res.status(statusCode).json({
+            status : 'Success',
+            token ,
+            data : {
+                user
+            }
+        });
+    }
     catch(err){
         console.log(err);
     }
 };
 
 exports.signup = catchAsync(async(req,res,next) => {
-    // const newUser = await User.create({
-    //     name : req.body.name,
-    //     email : req.body.email,
-    //     password : req.body.password,
-    //     passwordConfirm : req.body.passwordConfirm
-    // });
-    const newUser  = await User.create(req.body);
+    const newUser = await User.create({
+        name : req.body.name,
+        email : req.body.email,
+        password : req.body.password,
+        passwordConfirm : req.body.passwordConfirm
+    });
+    // const newUser  = await User.create(req.body);
     createSendToken(newUser,201,res);
 });
 
@@ -90,7 +94,6 @@ exports.restrictTo = (...roles) => {
         if(!roles.includes(req.user.role)){
             return next(new AppError('Access Denied',403));
         }
-
         next();
     }
 };

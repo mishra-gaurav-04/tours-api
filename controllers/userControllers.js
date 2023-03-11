@@ -1,7 +1,7 @@
 const User = require('../models/Users');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/asyncError');
-
+const factory = require('../Functions/factoryFunction');
 
 
 const getAllUsers = catchAsync(async(req,res,next) => {
@@ -66,9 +66,7 @@ const deleteMe = catchAsync(async(req,res,next) => {
     });
 });
 
-const deleteUser = (req,res) => {
-    console.log('Delete User');
-}
+const deleteUser = factory.deleteOne(User);
 
 module.exports = {
     getAllUsers,

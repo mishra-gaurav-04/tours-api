@@ -2,6 +2,7 @@ const Tour = require('../models/Tours');
 const APIFeatures = require('../utils/apifeatures');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/asyncError');
+const factory = require('../Functions/factoryFunction');
 
 const aliasTopTours = (req,res,next) => {
     req.query.limit = '5';
@@ -51,7 +52,7 @@ const addNewTour = catchAsync(async(req,res,next) => {
 const getTour = catchAsync( async(req,res,next) => {
     const tourId = req.params.id;
 
-        const tour = await Tour.findById(tourId);
+        const tour = await Tour.findById(tourId).populate('reviews');
         if(!tour){
             return next(new AppError('Tour not found :: invalid ID',404));
         }
@@ -63,31 +64,9 @@ const getTour = catchAsync( async(req,res,next) => {
         });
 });
 
-const updateTour = catchAsync(async(req,res,next) => {
-    const tourId = req.params.id;
-    const tour = await Tour.findByIdAndUpdate(tourId,req.body,{
-        new : true,
-        runValidators : true
-    });
-    if(!tour){
-        return next(new AppError('Tour not found :: Invalid Tour-ID',404));
-    } 
-    res.status(200).json({
-        status : 'Tour updated successfully',
-        data : {
-            tour
-        }
-    });
-});
+const updateTour = factory.updateOne(Tour);
 
-const deleteTour = catchAsync(async(req,res,next) => {
-    const tourId = req.params.id;
-        await Tour.findByIdAndDelete(tourId);
-        res.status(200).json({
-            status : 'Success',
-            message : 'Tour Delete successfully'
-        });
-});
+const deleteTour = factory.deleteOne(Tour);
 
 const getToursStats = catchAsync(async(req,res,next) => {
     const stats = await Tour.aggregate([

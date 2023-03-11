@@ -2,7 +2,7 @@ const AppError = require('../utils/appError');
 
 const sendErrorDev = (err,res) => {
     res.status(err.statusCode).json({
-        status : 'Fail',
+        status : err.status,
         message : err.message,
         error : err,
         stack : err.stack
@@ -33,7 +33,6 @@ const handleTokenExpirationError = err =>{
     return new AppError('Token Expired login again',401);
 }
 const sendErrorProd = (err,res) => {
-    console.log('Error handler',err);
     if(err.isOperational === true){
         res.status(err.statusCode).json({
             status : 'Fail',
@@ -41,8 +40,7 @@ const sendErrorProd = (err,res) => {
         })
     }
     else{
-        // 1) Logging error to console
-        // console.error('ERROR',err);
+        console.log('Error handler',err);
         res.status(500).json({
             status : 'error',
             message : 'Internal Server Error'

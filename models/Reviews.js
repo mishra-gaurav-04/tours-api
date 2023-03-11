@@ -18,7 +18,7 @@ const reviewsSchema = new Schema({
         ref : 'Tour',
         required : [true,'Review must belong to the tour']
     },
-    users : [
+    users :[
         {
             type : Schema.Types.ObjectId,
             ref : 'User',
@@ -36,10 +36,7 @@ const reviewsSchema = new Schema({
 });
 
 reviewsSchema.pre(/^find/,function(next){
-    this.populate({
-        path : 'tour',
-        select : 'name'
-    }).populate({
+   this.populate({
         path : 'users',
         select : 'name photo'
     });
