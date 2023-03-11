@@ -35,4 +35,15 @@ const reviewsSchema = new Schema({
     toObject : {virtuals : true}
 });
 
+reviewsSchema.pre(/^find/,function(next){
+    this.populate({
+        path : 'tour',
+        select : 'name'
+    }).populate({
+        path : 'users',
+        select : 'name photo'
+    });
+    next();
+});
+
 module.exports = mongoose.model('Reviews',reviewsSchema);

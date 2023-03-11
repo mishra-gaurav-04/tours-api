@@ -13,6 +13,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
 dotenv.config();
@@ -59,6 +60,7 @@ if(process.env.NODE_ENV === 'development'){
 //routing
 app.use('/api/v1/tours',tourRoutes);
 app.use('/api/v1/user',userRoutes);
+app.use('/api/v1/reviews',reviewRoutes);
 
 app.all('*',(req,res,next) => {
     next(new AppError('404 Not found',404));
