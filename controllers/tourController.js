@@ -1,74 +1,22 @@
 const Tour = require('../models/Tours');
-const APIFeatures = require('../utils/apifeatures');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/asyncError');
 const factory = require('../Functions/factoryFunction');
 
-const aliasTopTours = (req,res,next) => {
+exports.aliasTopTours = (req,res,next) => {
     req.query.limit = '5';
     req.query.sort = '-ratingsAvg,price';
     req.query.fields = 'name,price,summary,difficulty,ratingsAvg'
     next();
 }
 
-const checkBody = (req,res,next) => {
-    if(!req.body.name || !req.body.price){
-        return res.status(400).json({
-            status : 'fail',
-            message : 'Missing name or price'
-        });
-    }
-    next();
-};
+exports.getAllTours = factory.getAll(Tour);
+exports.addNewTour = factory.createOne(Tour);
+exports.getTour = factory.getOne(Tour);
+exports.updateTour = factory.updateOne(Tour);
+exports.deleteTour = factory.deleteOne(Tour);
 
-const getAllTours = catchAsync(async(req,res,next) => {
-    const features = new APIFeatures(Tour.find(),req.query)
-    .filter()
-    .sorting()
-    .limiting()
-    .pagination()
-    const tours = await features.query;
-    res.status(200).json({
-        status : 'success',
-        results : tours.length,
-        data : {
-            tours
-        }
-    });
-});
-
-const addNewTour = catchAsync(async(req,res,next) => {
-    const newTour = await Tour.create(req.body);
-
-    res.status(201).json({
-        status : 'Success',
-        message : 'New Tour Created Successfully',
-        data : {
-            newTour,
-        }
-    });
-});
-
-const getTour = catchAsync( async(req,res,next) => {
-    const tourId = req.params.id;
-
-        const tour = await Tour.findById(tourId).populate('reviews');
-        if(!tour){
-            return next(new AppError('Tour not found :: invalid ID',404));
-        }
-        res.status(200).json({
-            status : 'Success',
-            data : {
-                tour
-            }
-        });
-});
-
-const updateTour = factory.updateOne(Tour);
-
-const deleteTour = factory.deleteOne(Tour);
-
-const getToursStats = catchAsync(async(req,res,next) => {
+exports.getToursStats = catchAsync(async(req,res,next) => {
     const stats = await Tour.aggregate([
         {
             $match : {ratingsAvg : {$gte : 4.5}}
@@ -100,7 +48,7 @@ const getToursStats = catchAsync(async(req,res,next) => {
     });
 });
 
-const getMonthlyPlan = (async (req,res,next) => {
+exports.getMonthlyPlan = (async (req,res,next) => {
     const year = req.params.year * 1;
 
         const plan = await Tour.aggregate([
@@ -119,7 +67,7 @@ const getMonthlyPlan = (async (req,res,next) => {
             {
                 $group :{
                     _id : {$month : '$startDates'},
-                    numTour : {$sum : 1},
+                    numTourStarts : {$sum : 1},
                     tours : {$push : '$name'}
                 }
             },
@@ -149,17 +97,4 @@ const getMonthlyPlan = (async (req,res,next) => {
                 plan
             }
         });
-})
-
-module.exports = {
-    getAllTours,
-    getTour,
-    getToursStats,
-    getMonthlyPlan,
-    addNewTour,
-    updateTour,
-    deleteTour,
-    checkBody,
-    aliasTopTours,
-    
-};
+});

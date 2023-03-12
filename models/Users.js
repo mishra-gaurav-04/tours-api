@@ -67,10 +67,10 @@ userSchema.pre('save',async function(next){
 });
 
 userSchema.pre('save',function(next){
-    if(this.isModified('password') || this.isNew){
+    if(!this.isModified('password') || this.isNew){
         return next();
     }
-    this.passwordChangedAt = Date.now()-2000;
+    this.passwordChangedAt = Date.now()-1000;
     next();
 });
 
@@ -80,13 +80,13 @@ userSchema.pre(/^find/,function(next){
 });
 
 userSchema.methods.correctPassword = async function(candidatePassword,userPassword){
-    return bcrypt.compare(candidatePassword,userPassword);
+    return await bcrypt.compare(candidatePassword,userPassword);
 };
 
 userSchema.methods.checkPasswordChange = async function(JWTTimeStamp){
     if(this.passwordChangedAt){
         const changedTimeStamp = parseInt(this.passwordChangedAt.getTime()/1000,10);
-        console.log(changedTimeStamp,JWTTimeStamp);
+        // console.log(changedTimeStamp,JWTTimeStamp);
         return JWTTimeStamp < changedTimeStamp;
     }
     return false;

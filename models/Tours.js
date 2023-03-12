@@ -36,7 +36,7 @@ const tourSchema = new Schema({
         required : true
     }
     ,
-    ratingsAvg : {
+    ratingsAverage : {
         type : Number,
         default : 4.5,
         min : [1,'Ratings must be greater than or equal to 1'],
@@ -99,7 +99,7 @@ const tourSchema = new Schema({
     ],
     guides : [
         {
-            type : Schema.Types.ObjectId,
+            type : Schema.ObjectId,
             ref : 'User'
         }
     ],
@@ -120,6 +120,8 @@ tourSchema.pre('save',function(next){
     next();
 });
 
+tourSchema.index({price : 1});
+
 // tourSchema.pre('save', async function(next) {
 //        const guidesPromises = this.guides.map(async id => await User.findById(id));
 //        this.guides = await Promise.all(guidesPromises);
@@ -134,6 +136,7 @@ tourSchema.pre('save',function(next){
 // query middleware
 tourSchema.pre(/^find/,function(next){
     this.find({secretTour : {$ne : true}});
+    this.start = Date.now();
     next();
 });
 
@@ -156,7 +159,7 @@ tourSchema.virtual('durationWeek').get(function() {
 
 
 tourSchema.virtual('reviews',{
-    ref : 'Reviews',
+    ref : 'Review',
     foreignField : 'tour',
     localField : '_id'
 });

@@ -3,39 +3,29 @@ const AppError = require('../utils/appError');
 const catchAsync = require('../utils/asyncError');
 const factory = require('../Functions/factoryFunction');
 
-
-const getAllUsers = catchAsync(async(req,res,next) => {
-    const users = await User.find();
-
-    res.status(200).json({
-        status : 'Success',
-        data : {
-            users
-        }
+const filter = (obj, ...allowedFields) => {
+    const newObj = {};
+    Object.keys(obj).forEach(el => {
+      if (allowedFields.includes(el)) newObj[el] = obj[el];
     });
-    
-});
+    return newObj;
+  };
 
-const filter = (reqBody,...options) => {
-   const bodyObj = {}
-   options.forEach((item) => {
-        bodyObj[item] = reqBody[item];
-   });
-   return bodyObj;
-}
+exports.getMe = (req,res,next) => {
+    req.params.id = req.user.id;
+    next();
+};
 
-const updateMe = catchAsync(async(req,res,next) => {
+exports.updateMe = catchAsync(async(req,res,next) => {
     if(req.body.password || req.body.passwordConfirm){
         return next(new AppError('You cannot update password',400));
     }
-    
     const userId = req.user.id;
     const filteredBody = filter(req.body,'name','email');
     const updatedUser = await User.findByIdAndUpdate(userId,filteredBody,{
         new : true,
         runValidators : true
     });
-
     res.status(200).json({
         status : 'Success',
         message : 'user updated successfully',
@@ -45,19 +35,7 @@ const updateMe = catchAsync(async(req,res,next) => {
     });
 });
 
-const getUser = (req,res) => {
-    console.log('Get User');
-}
-
-const addNewUser = (req,res) => {
-    console.log('Add new User');
-}
-
-const updateUser = (req,res) => {
-    console.log('UpdateUser');
-}
-
-const deleteMe = catchAsync(async(req,res,next) => {
+exports.deleteMe = catchAsync(async(req,res,next) => {
      await User.findByIdAndUpdate(req.user.id,{active : false});
     res.status(204).json({
         status : "Success",
@@ -66,14 +44,15 @@ const deleteMe = catchAsync(async(req,res,next) => {
     });
 });
 
-const deleteUser = factory.deleteOne(User);
-
-module.exports = {
-    getAllUsers,
-    getUser,
-    addNewUser,
-    updateUser,
-    deleteUser,
-    updateMe,
-    deleteMe
+exports.createUser = (req,res) => {
+    res.status(500).json({
+        status : 'error',
+        message : 'This route is not defined'
+    });
 };
+
+
+exports.getAllUsers = factory.getAll(User);
+exports.getUser = factory.getOne(User);
+exports.updateUser = factory.updateOne(User);
+exports.deleteUser = factory.deleteOne(User);
